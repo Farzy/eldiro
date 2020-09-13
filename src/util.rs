@@ -22,4 +22,14 @@ mod test {
     fn extract_multiple_digits() {
         assert_eq!(extract_digits("10-20"), ("-20", "10"));
     }
+
+    #[test]
+    fn do_not_extract_anything_from_empty_input() {
+        assert_eq!(extract_digits(""), ("", ""));
+    }
+
+    #[test]
+    fn extract_digits_with_no_remainder() {
+        assert_eq!(extract_digits("100"), ("", "100"));
+    }
 }
