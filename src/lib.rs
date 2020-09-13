@@ -38,9 +38,15 @@ pub struct Expr {
 
 impl Expr {
     pub fn new(s: &str) -> Self {
-        let lhs = Number::new(s);
-        let rhs = Number::new(s);
-        let op = Op::new(s);
+        let (s, lhs) = util::extract_digits(s);
+        let lhs = Number::new(lhs);
+
+        let (s, op) = util::extract_op(s);
+        let op = Op::new(op);
+
+        let (s, rhs) = util::extract_digits(s);
+        let rhs = Number::new(rhs);
+
         Self { lhs, rhs, op }
     }
 }
