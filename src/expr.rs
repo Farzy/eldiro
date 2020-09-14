@@ -127,4 +127,56 @@ mod tests {
             )
         );
     }
+
+    #[test]
+    fn eval_add() {
+        assert_eq!(
+            Expr {
+                lhs: Number(10),
+                rhs: Number(10),
+                op: Op::Add,
+            }
+            .eval(),
+            Val::Number(20),
+        );
+    }
+
+    #[test]
+    fn eval_sub() {
+        assert_eq!(
+            Expr {
+                lhs: Number(1),
+                rhs: Number(5),
+                op: Op::Sub,
+            }
+            .eval(),
+            Val::Number(-4),
+        );
+    }
+
+    #[test]
+    fn eval_mut() {
+        assert_eq!(
+            Expr {
+                lhs: Number(5),
+                rhs: Number(6),
+                op: Op::Mul,
+            }
+            .eval(),
+            Val::Number(30),
+        );
+    }
+
+    #[test]
+    fn eval_div() {
+        assert_eq!(
+            Expr {
+                lhs: Number(200),
+                rhs: Number(20),
+                op: Op::Div,
+            }
+            .eval(),
+            Val::Number(10),
+        );
+    }
 }
