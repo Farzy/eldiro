@@ -1,6 +1,6 @@
+use crate::env::Env;
 use crate::expr::Expr;
 use crate::util;
-use crate::env::Env;
 
 #[derive(Debug, PartialEq)]
 pub struct BindingDef {
@@ -38,7 +38,7 @@ impl BindingDef {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::expr::{Expr, Op, Number};
+    use crate::expr::{Expr, Number, Op};
 
     #[test]
     fn parse_binding_def() {
