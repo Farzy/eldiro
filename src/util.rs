@@ -48,7 +48,6 @@ pub(crate) fn tag<'a, 'b>(starting_text: &'a str, s: &'b str) -> &'b str {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -116,5 +115,11 @@ mod tests {
     #[test]
     fn tag_word() {
         assert_eq!(tag("let", "let a"), " a");
+    }
+
+    #[test]
+    #[should_panic(expected = "expected foo")]
+    fn tag_missing_word() {
+        assert_eq!(tag("foo", "boo a"), " a");
     }
 }
