@@ -1,4 +1,4 @@
-use crate::util::{extract_digits, extract_op};
+use crate::util::{extract_digits, extract_op, extract_whitespace};
 
 mod util;
 
@@ -45,8 +45,10 @@ pub struct Expr {
 impl Expr {
     pub fn new(s: &str) -> (&str, Self) {
         let (s, lhs) = Number::new(s);
+        let (s, _) = extract_whitespace(s);
 
         let (s, op) = Op::new(s);
+        let (s, _) = extract_whitespace(s);
 
         let (s, rhs) = Number::new(s);
 
@@ -93,6 +95,21 @@ mod tests {
                     lhs: Number(1),
                     rhs: Number(2),
                     op: Op::Add,
+                }
+            )
+        );
+    }
+
+    #[test]
+    fn parse_expr_with_whitespace() {
+        assert_eq!(
+            Expr::new("2 * 2"),
+            (
+                "",
+                Expr {
+                    lhs: Number(2),
+                    rhs: Number(2),
+                    op: Op::Mul,
                 }
             )
         );
