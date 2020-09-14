@@ -35,9 +35,9 @@ impl Op {
 
 #[derive(Debug, PartialEq)]
 pub struct Expr {
-    lhs: Number,
-    rhs: Number,
-    op: Op,
+    pub lhs: Number,
+    pub rhs: Number,
+    pub op: Op,
 }
 
 impl Expr {
