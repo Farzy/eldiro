@@ -14,7 +14,7 @@ pub(crate) fn extract_digits(s: &str) -> (&str, &str) {
 }
 
 pub(crate) fn extract_ident(s: &str) -> (&str, &str) {
-    take_while(|c| c.is_ascii_alphabetic(), s)
+    take_while(|c| c.is_ascii_alphanumeric(), s)
 }
 
 pub(crate) fn extract_whitespace(s: &str) -> (&str, &str) {
@@ -31,7 +31,7 @@ pub(crate) fn extract_op(s: &str) -> (&str, &str) {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
 
     #[test]
@@ -80,7 +80,12 @@ mod test {
     }
 
     #[test]
-    fn extraxct_alphabetic_iden() {
+    fn extract_alphabetic_ident() {
         assert_eq!(extract_ident("abcdEFG stop"), (" stop", "abcdEFG"));
+    }
+
+    #[test]
+    fn extract_alphanumeric_ident() {
+        assert_eq!(extract_ident("foobar1()"), ("()", "foobar1"));
     }
 }

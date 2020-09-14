@@ -39,7 +39,7 @@ impl BindingDef {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
     use crate::expr::{Expr, Op, Number};
 
