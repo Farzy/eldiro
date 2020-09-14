@@ -1,11 +1,14 @@
+use crate::util::{extract_digits, extract_op};
+
 mod util;
 
 #[derive(Debug, PartialEq)]
 pub struct Number(pub i32);
 
 impl Number {
-    pub fn new(s: &str) -> Self {
-        Self(s.parse().unwrap())
+    pub fn new(s: &str) -> (&str, Self) {
+        let (s, number) = extract_digits(s);
+        (s, Self(number.parse().unwrap()))
     }
 }
 
@@ -18,14 +21,17 @@ pub enum Op {
 }
 
 impl Op {
-    pub fn new(s: &str) -> Self {
-        match s {
+    pub fn new(s: &str) -> (&str, Self) {
+        let (s, op) = extract_op(s);
+        let op = match op {
             "+" => Self::Add,
             "-" => Self::Sub,
             "*" => Self::Mul,
             "/" => Self::Div,
             _ => panic!("bar operator"),
-        }
+        };
+
+        (s, op)
     }
 }
 
@@ -38,14 +44,11 @@ pub struct Expr {
 
 impl Expr {
     pub fn new(s: &str) -> Self {
-        let (s, lhs) = util::extract_digits(s);
-        let lhs = Number::new(lhs);
+        let (s, lhs) = Number::new(s);
 
-        let (s, op) = util::extract_op(s);
-        let op = Op::new(op);
+        let (s, op) = Op::new(s);
 
-        let (s, rhs) = util::extract_digits(s);
-        let rhs = Number::new(rhs);
+        let (s, rhs) = Number::new(s);
 
         Self { lhs, rhs, op }
     }
@@ -56,27 +59,27 @@ mod tests {
 
     #[test]
     fn parse_number() {
-        assert_eq!(Number::new("123"), Number(123));
+        assert_eq!(Number::new("123"), ("", Number(123)));
     }
 
     #[test]
     fn parse_add_op() {
-        assert_eq!(Op::new("+"), Op::Add);
+        assert_eq!(Op::new("+"), ("", Op::Add));
     }
 
     #[test]
     fn parse_sub_op() {
-        assert_eq!(Op::new("-"), Op::Sub);
+        assert_eq!(Op::new("-"), ("", Op::Sub));
     }
 
     #[test]
     fn parse_mul_op() {
-        assert_eq!(Op::new("*"), Op::Mul);
+        assert_eq!(Op::new("*"), ("", Op::Mul));
     }
 
     #[test]
     fn parse_div_op() {
-        assert_eq!(Op::new("/"), Op::Div);
+        assert_eq!(Op::new("/"), ("", Op::Div));
     }
 
     #[test]
