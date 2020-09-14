@@ -13,6 +13,10 @@ pub(crate) fn extract_digits(s: &str) -> (&str, &str) {
     take_while(|c| c.is_ascii_digit(), s)
 }
 
+pub(crate) fn extract_ident(s: &str) -> (&str, &str) {
+    take_while(|c| c.is_ascii_alphabetic(), s)
+}
+
 pub(crate) fn extract_whitespace(s: &str) -> (&str, &str) {
     take_while(|c| c == ' ', s)
 }
@@ -73,5 +77,10 @@ mod test {
     #[test]
     fn extract_spaces() {
         assert_eq!(extract_whitespace("   1"), ("1", "   "));
+    }
+
+    #[test]
+    fn extraxct_alphabetic_iden() {
+        assert_eq!(extract_ident("abcdEFG stop"), (" stop", "abcdEFG"));
     }
 }
