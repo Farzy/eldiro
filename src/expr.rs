@@ -1,4 +1,5 @@
 use crate::util;
+use crate::val::Val;
 
 #[derive(Debug, PartialEq)]
 pub struct Number(pub i32);
@@ -51,6 +52,20 @@ impl Expr {
         let (s, rhs) = Number::new(s);
 
         (s, Self { lhs, rhs, op })
+    }
+
+    pub(crate) fn eval(&self) -> Val {
+        let Number(lhs) = self.lhs;
+        let Number(rhs) = self.rhs;
+
+        let result = match self.op {
+            Op::Add => lhs + rhs,
+            Op::Sub => lhs - rhs,
+            Op::Mul => lhs * rhs,
+            Op::Div => lhs / rhs,
+        };
+
+        Val::Number(result)
     }
 }
 
