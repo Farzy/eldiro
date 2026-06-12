@@ -72,3 +72,39 @@ jobs:
 
       - name: Cargo Deny Check
         uses: EmbarkStudios/cargo-deny-action@v2
+
+  sbom:
+    name: Generate & Scan SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate CycloneDX SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: sbom.cyclonedx.json
+
+      - name: Generate SPDX SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-files
+          path: |
+            sbom.cyclonedx.json
+            sbom.spdx.json
+
+      - name: Scan CycloneDX SBOM with Grype
+        uses: anchore/scan-action@v7
+        with:
+          sbom: sbom.cyclonedx.json
+          fail-build: true
+          severity-cutoff: high
