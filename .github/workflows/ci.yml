@@ -8,6 +8,10 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  # cargo-audit checks dependencies for known security vulnerabilities.
+  # The tool is installed from crates.io (https://crates.io/crates/cargo-audit).
+  # To find the latest version in the future, query crates.io or run:
+  # cargo search cargo-audit
   CARGO_AUDIT_VERSION: 0.22.2
 
 jobs:
