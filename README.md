@@ -1,6 +1,6 @@
 # Eldiro
 
-Make a Language. 
+Make a Language.
 
 Learn parsing by following the [Eldiro](https://arzg.github.io/lang/) tutorial.
 
@@ -19,7 +19,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-   
+
 # References
 
 * Make A Language: https://arzg.github.io/lang/

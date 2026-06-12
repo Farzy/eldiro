@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+  # cargo-audit checks dependencies for known security vulnerabilities.
+  # The tool is installed from crates.io (https://crates.io/crates/cargo-audit).
+  # To find the latest version in the future, query crates.io or run:
+  # cargo search cargo-audit
+  CARGO_AUDIT_VERSION: 0.22.2
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Run tests
+        run: cargo test --verbose
+
+      - name: Write Job Summary
+        run: |
+          echo "### 🧪 Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All unit tests compiled and passed successfully on \`ubuntu-latest\`." >> $GITHUB_STEP_SUMMARY
+
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: clippy, rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Write Job Summary
+        run: |
+          echo "### 🧹 Lint & Format Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Code Formatting**: Codebase is properly formatted (\`cargo fmt\`)." >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Clippy Lints**: Passed with warnings-as-errors (\`cargo clippy\`)." >> $GITHUB_STEP_SUMMARY
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Cache cargo-audit binary
+        uses: actions/cache@v5
+        id: cache-cargo-audit
+        with:
+          path: ~/.cargo/bin/cargo-audit
+          key: ${{ runner.os }}-cargo-audit-${{ env.CARGO_AUDIT_VERSION }}
+
+      - name: Install cargo-audit
+        if: steps.cache-cargo-audit.outputs.cache-hit != 'true'
+        run: cargo install cargo-audit --version ${{ env.CARGO_AUDIT_VERSION }} --locked
+
+      - name: Cargo Security Audit
+        run: cargo audit
+
+      - name: Cargo Deny Check
+        uses: EmbarkStudios/cargo-deny-action@v2
+
+      - name: Write Job Summary
+        run: |
+          echo "### 🛡️ Security Audit Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Dependency Vulnerabilities**: Checked with \`cargo-audit\` (Version ${{ env.CARGO_AUDIT_VERSION }})." >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Cargo Deny**: License, ban, and advisory checks passed." >> $GITHUB_STEP_SUMMARY
+
+  sbom:
+    name: Generate & Scan SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Generate CycloneDX SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: sbom.cyclonedx.json
+
+      - name: Generate SPDX SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: sbom-files
+          path: |
+            sbom.cyclonedx.json
+            sbom.spdx.json
+
+      - name: Scan CycloneDX SBOM with Grype
+        uses: anchore/scan-action@v7
+        with:
+          sbom: sbom.cyclonedx.json
+          fail-build: true
+          severity-cutoff: high
+
+      - name: Write Job Summary
+        run: |
+          echo "### 📦 SBOM & Vulnerability Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **SBOM Generation**: Created and uploaded CycloneDX and SPDX SBOM formats." >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Grype Scan**: Scanned \`sbom.cyclonedx.json\` - zero High/Critical vulnerabilities found." >> $GITHUB_STEP_SUMMARY
