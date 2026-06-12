@@ -60,8 +60,6 @@ To fail the command when vulnerabilities above a certain threshold (e.g., `high`
 grype sbom.cyclonedx.json --fail-on high
 ```
 
----
-
 ## CI/CD Pipeline Integration
 
 Our GitHub Actions workflow [.github/workflows/ci.yml](file://.github/workflows/ci.yml) includes a `sbom` job that runs automatically on pushes and pull requests:
@@ -69,3 +67,10 @@ Our GitHub Actions workflow [.github/workflows/ci.yml](file://.github/workflows/
 1.  **Generation**: Generates both CycloneDX JSON and SPDX JSON SBOM files.
 2.  **Artifact Storage**: Uploads the generated SBOM files as run artifacts named `sbom-files`.
 3.  **Vulnerability Enforcement**: Scans the generated CycloneDX SBOM with Grype and will fail the build if any `high` or `critical` vulnerabilities are discovered.
+
+### Release CD Pipeline Integration
+
+In addition to PR/push validation, when you publish a new GitHub Release, the [.github/workflows/release.yml](file://.github/workflows/release.yml) CD workflow is triggered:
+
+1.  **SBOM Generation**: Generates CycloneDX and SPDX SBOM formats for the release commit.
+2.  **Release Asset Upload**: Automatically attaches `sbom.cyclonedx.json` and `sbom.spdx.json` as assets to the published release, ensuring that compliance documents are permanently archived and version-locked alongside your build artifacts.
