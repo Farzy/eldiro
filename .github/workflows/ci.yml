@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   # cargo-audit checks dependencies for known security vulnerabilities.
   # The tool is installed from crates.io (https://crates.io/crates/cargo-audit).
   # To find the latest version in the future, query crates.io or run:
@@ -28,6 +29,11 @@ jobs:
       - name: Run tests
         run: cargo test --verbose
 
+      - name: Write Job Summary
+        run: |
+          echo "### 🧪 Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All unit tests compiled and passed successfully on \`ubuntu-latest\`." >> $GITHUB_STEP_SUMMARY
+
   lint:
     name: Lint & Format
     runs-on: ubuntu-latest
@@ -45,6 +51,12 @@ jobs:
 
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Write Job Summary
+        run: |
+          echo "### 🧹 Lint & Format Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Code Formatting**: Codebase is properly formatted (\`cargo fmt\`)." >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Clippy Lints**: Passed with warnings-as-errors (\`cargo clippy\`)." >> $GITHUB_STEP_SUMMARY
 
   security:
     name: Security Audit
@@ -72,6 +84,12 @@ jobs:
 
       - name: Cargo Deny Check
         uses: EmbarkStudios/cargo-deny-action@v2
+
+      - name: Write Job Summary
+        run: |
+          echo "### 🛡️ Security Audit Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Dependency Vulnerabilities**: Checked with \`cargo-audit\` (Version ${{ env.CARGO_AUDIT_VERSION }})." >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Cargo Deny**: License, ban, and advisory checks passed." >> $GITHUB_STEP_SUMMARY
 
   sbom:
     name: Generate & Scan SBOM
@@ -108,3 +126,9 @@ jobs:
           sbom: sbom.cyclonedx.json
           fail-build: true
           severity-cutoff: high
+
+      - name: Write Job Summary
+        run: |
+          echo "### 📦 SBOM & Vulnerability Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **SBOM Generation**: Created and uploaded CycloneDX and SPDX SBOM formats." >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Grype Scan**: Scanned \`sbom.cyclonedx.json\` - zero High/Critical vulnerabilities found." >> $GITHUB_STEP_SUMMARY
