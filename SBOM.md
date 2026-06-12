@@ -68,9 +68,10 @@ Our GitHub Actions workflow [.github/workflows/ci.yml](file://.github/workflows/
 2.  **Artifact Storage**: Uploads the generated SBOM files as run artifacts named `sbom-files`.
 3.  **Vulnerability Enforcement**: Scans the generated CycloneDX SBOM with Grype and will fail the build if any `high` or `critical` vulnerabilities are discovered.
 
-### Release CD Pipeline Integration
+### Release CD Pipeline & Version Coherence
 
-In addition to PR/push validation, when you publish a new GitHub Release, the [.github/workflows/release.yml](file://.github/workflows/release.yml) CD workflow is triggered:
+The CD workflow [.github/workflows/release.yml](file://.github/workflows/release.yml) is triggered automatically when you push a new version tag (with format `vX.Y.Z`, e.g., `v0.1.0`):
 
-1.  **SBOM Generation**: Generates CycloneDX and SPDX SBOM formats for the release commit.
-2.  **Release Asset Upload**: Automatically attaches `sbom.cyclonedx.json` and `sbom.spdx.json` as assets to the published release, ensuring that compliance documents are permanently archived and version-locked alongside your build artifacts.
+1.  **Version Coherence Check**: The workflow parses [Cargo.toml](file://Cargo.toml) and compares the `version` field with the Git tag name. If they do not match, the release job fails to prevent mislabeled or out-of-sync releases.
+2.  **SBOM Generation**: Generates CycloneDX and SPDX SBOM formats for the tagged commit.
+3.  **GitHub Release Creation**: Automatically publishes a new GitHub Release for the tag, generates release notes based on git commit history, and attaches the SBOM files as release assets.
